@@ -1,6 +1,11 @@
-# JavaWebRTCYouTube
- ## webrtc sample conversion from Firebase to Node.js Signaling
 
-* We will replace Firebase Signaling with Node.js signaling service: https://github.com/codewithkael/NativeAndroidWebRTC/blob/master/webrtc%20server/index.js
+ ## WEBRTC sample app conversion from Firebase to WebSocket Node.js Signaling
 
-## Firebase needs to be replaced by Web Sockets
+* Node.js signaling service: https://github.com/codewithkael/NativeAndroidWebRTC/blob/master/webrtc%20server/index.js
+
+## Firebase needs to be replaced by WebSockets
+
+- Remove Firebase Realtime Database integration from the existing Android application.
+- Implement WebSocket communication in the Android application to connect to a Node.js signaling server.
+- Modify existing Java codebase to send and receive signaling messages via WebSockets.
+- Test and debug WebSocket communication to ensure reliable signaling between Android clients and the Node.js server.
