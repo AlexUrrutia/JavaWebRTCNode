@@ -3,7 +3,7 @@ package com.codewithkael.javawebrtcyoutube.repository;
 import android.content.Context;
 import android.util.Log;
 
-import com.codewithkael.javawebrtcyoutube.remote.FirebaseClient;
+import com.codewithkael.javawebrtcyoutube.remote.SocketClient;
 import com.codewithkael.javawebrtcyoutube.utils.DataModel;
 import com.codewithkael.javawebrtcyoutube.utils.DataModelType;
 import com.codewithkael.javawebrtcyoutube.utils.ErrorCallBack;
@@ -23,7 +23,7 @@ public class MainRepository implements WebRTCClient.Listener {
 
     public Listener listener;
     private final Gson gson = new Gson();
-    private final FirebaseClient firebaseClient;
+    private final SocketClient socketClient;
 
     private WebRTCClient webRTCClient;
 
@@ -37,7 +37,7 @@ public class MainRepository implements WebRTCClient.Listener {
     }
 
     private MainRepository(){
-        this.firebaseClient = new FirebaseClient();
+        this.socketClient = new SocketClient();
     }
 
     private static MainRepository instance;
@@ -49,7 +49,7 @@ public class MainRepository implements WebRTCClient.Listener {
     }
 
     public void login(String username, Context context, SuccessCallBack callBack){
-        firebaseClient.login(username,()->{
+        socketClient.login(username,()->{
             updateCurrentUsername(username);
             this.webRTCClient = new WebRTCClient(context,new MyPeerConnectionObserver(){
                 @Override
@@ -113,8 +113,8 @@ public class MainRepository implements WebRTCClient.Listener {
         webRTCClient.toggleVideo(shouldBeMuted);
     }
     public void sendCallRequest(String target, ErrorCallBack errorCallBack){
-        firebaseClient.sendMessageToOtherUser(
-                new DataModel(target,currentUsername,null, DataModelType.StartCall),errorCallBack
+        socketClient.sendMessageToOtherUser(
+                new DataModel(target,currentUsername,null, DataModelType.start_call),errorCallBack
         );
     }
 
@@ -123,23 +123,23 @@ public class MainRepository implements WebRTCClient.Listener {
     }
 
     public void subscribeForLatestEvent(NewEventCallBack callBack){
-        firebaseClient.observeIncomingLatestEvent(model -> {
+        socketClient.observeIncomingLatestEvent(model -> {
             switch (model.getType()){
 
-                case Offer:
+                case offer_received:
                     this.target = model.getSender();
                     webRTCClient.onRemoteSessionReceived(new SessionDescription(
-                            SessionDescription.Type.OFFER,model.getData()
+                            SessionDescription.Type.OFFER, model.getData()
                     ));
                     webRTCClient.answer(model.getSender());
                     break;
-                case Answer:
+                case answer_received:
                     this.target = model.getSender();
                     webRTCClient.onRemoteSessionReceived(new SessionDescription(
                             SessionDescription.Type.ANSWER,model.getData()
                     ));
                     break;
-                case IceCandidate:
+                case ice_candidate:
                         try{
                             IceCandidate candidate = gson.fromJson(model.getData(),IceCandidate.class);
                             webRTCClient.addIceCandidate(candidate);
@@ -147,9 +147,15 @@ public class MainRepository implements WebRTCClient.Listener {
                             e.printStackTrace();
                         }
                     break;
-                case StartCall:
-                    this.target = model.getSender();
-                    callBack.onNewEventReceived(model);
+                case call_response:
+                    String message = model.getData();
+                    if (message.equals("user is ready for call")) {
+                        this.target = model.getSender();
+                        callBack.onNewEventReceived(model);
+                    } else if (message.equals("user is not online")) {
+                        Log.d("MainRepository", "user is not found!");
+                    }
+
                     break;
             }
 
@@ -158,7 +164,7 @@ public class MainRepository implements WebRTCClient.Listener {
 
     @Override
     public void onTransferDataToOtherPeer(DataModel model) {
-        firebaseClient.sendMessageToOtherUser(model,()->{});
+        socketClient.sendMessageToOtherUser(model,()->{});
     }
 
     public interface Listener{
