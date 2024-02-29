@@ -146,7 +146,7 @@ public class WebRTCClient {
                             //its time to transfer this sdp to other peer
                             if (listener!=null){
                                 listener.onTransferDataToOtherPeer(new DataModel(
-                                        target,username,sessionDescription.description, DataModelType.Offer
+                                        target,username,sessionDescription.description, DataModelType.create_offer
                                 ));
                             }
                         }
@@ -171,7 +171,7 @@ public class WebRTCClient {
                             //its time to transfer this sdp to other peer
                             if (listener!=null){
                                 listener.onTransferDataToOtherPeer(new DataModel(
-                                        target,username,sessionDescription.description, DataModelType.Answer
+                                        target,username,sessionDescription.description, DataModelType.create_answer
                                 ));
                             }
                         }
@@ -195,7 +195,7 @@ public class WebRTCClient {
         addIceCandidate(iceCandidate);
         if (listener!=null){
             listener.onTransferDataToOtherPeer(new DataModel(
-                    target,username,gson.toJson(iceCandidate),DataModelType.IceCandidate
+                    target,username,gson.toJson(iceCandidate),DataModelType.ice_candidate
             ));
         }
     }
