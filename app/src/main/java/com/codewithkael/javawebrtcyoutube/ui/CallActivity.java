@@ -43,7 +43,7 @@ public class CallActivity extends AppCompatActivity implements MainRepository.Li
         mainRepository.listener = this;
 
         mainRepository.subscribeForLatestEvent(data->{
-            if (data.getType()== DataModelType.StartCall){
+            if (data.getType()== DataModelType.call_response){
                 runOnUiThread(()->{
                     views.incomingNameTV.setText(data.getSender()+" is Calling you");
                     views.incomingCallLayout.setVisibility(View.VISIBLE);
