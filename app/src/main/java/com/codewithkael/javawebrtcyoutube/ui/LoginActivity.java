@@ -31,7 +31,6 @@ public class LoginActivity extends AppCompatActivity {
                     .request((allGranted, grantedList, deniedList) -> {
                         if (allGranted) {
                             //login to firebase here
-
                             mainRepository.login(
                                     views.username.getText().toString(), getApplicationContext(), () -> {
                                         //if success then we want to move to call activity
